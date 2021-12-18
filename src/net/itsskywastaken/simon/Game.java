@@ -32,7 +32,7 @@ public class Game extends Canvas {
     
     public static Game.GameState state = Game.GameState.MENU;
     
-    public Game() {
+    Game() {
         this.handler = new Handler();
         this.addMouseListener(new MouseListener(this.handler));
         this.window = new Window(659, 528, "Memory", this, this.handler);
