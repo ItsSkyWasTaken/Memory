@@ -12,7 +12,9 @@ public class Square extends GameObject {
     
     public static final ArrayList<Square> squares = new ArrayList<>(25);
     public static final Random random = new Random();
-    public static final char[] charset = {'a', 'b', 'c', 'd', 'e'};
+    public static final char[] charset = {
+        'a', 'b', 'c', 'd', 'e'
+    };
     
     private boolean visible;
     private byte flashing;
@@ -34,13 +36,17 @@ public class Square extends GameObject {
     
     public static void beginSequencing() {
         Square.current = 0;
+        for(Square square : Square.squares) {
+            square.flashing = -1;
+        }
         Game.state = Game.GameState.SEQUENCING;
         Square.sequence.get(Square.current).flash();
     }
     
     public static void next() {
         if(Square.current + 1 < Square.sequence.size()) {
-            Square.sequence.get(++Square.current).flash();
+            Square.current++;
+            Square.sequence.get(Square.current).flash();
         } else {
             Square.current = 0;
             Game.state = Game.GameState.WAITING;
@@ -76,13 +82,19 @@ public class Square extends GameObject {
                     this.lastTime = System.currentTimeMillis();
                     break;
                 case 1:
-                    if(System.currentTimeMillis() >= this.lastTime + Math.round(60D / Game.speed / 2D * 1000)) {
-                        this.flashing = 2;
-                        this.lastTime = System.currentTimeMillis();
+                    if(Game.state.equals(Game.GameState.SEQUENCING)) {
+                        if(System.currentTimeMillis() >= this.lastTime + Math.round(60D / Game.speed / 2D * 1000)) {
+                            this.flashing = 2;
+                            this.lastTime = System.currentTimeMillis();
+                        }
+                    } else {
+                        if(System.currentTimeMillis() >= this.lastTime + Math.round(60D / Game.speed / 2D * 750)) {
+                            this.flashing = -1;
+                        }
                     }
                     break;
                 case 2:
-                    if(System.currentTimeMillis() >= this.lastTime + Math.round(60D / Game.speed / 2D * 1000) || Square.current == Square.sequence.size() - 1) {
+                    if(System.currentTimeMillis() >= this.lastTime + Math.round(60D / Game.speed / 2D * 1000)) {
                         this.flashing = -1;
                         Square.next();
                     }
@@ -99,7 +111,16 @@ public class Square extends GameObject {
             return;
         }
 
-        g.setColor(this.flashing == 1 ? Color.BLUE : Game.state.equals(Game.GameState.SEQUENCING) ? new Color(6250335) : Color.BLACK);
+        g.setColor(
+            Game.state.equals(Game.GameState.SEQUENCING) ?
+                this.flashing == 1 ?
+                    Color.BLUE :
+                    new Color(6250335) :         // Grey (#5f5f5f)
+                this.flashing == 1 ?
+                    new Color(52945) :           // Dark Cyan (#00ced1)
+                    Color.BLACK
+        );
+        
         g.fillRect(this.getX() - this.scale(16), this.getY() - this.scale(16), this.scale(32), this.scale(32));
 
         g.setColor(Color.WHITE);
@@ -121,9 +142,12 @@ public class Square extends GameObject {
         }
         
         if(Square.sequence.get(Square.current).equals(this)) {
-            if(Square.current++ >= Square.sequence.size() - 1) {
+            if(Square.current >= Square.sequence.size() - 1) {
                 Square.addToSequence();
                 Square.beginSequencing();
+            } else {
+                this.flash();
+                Square.current++;
             }
         } else {
             Game.state = Game.GameState.GAME_OVER;
