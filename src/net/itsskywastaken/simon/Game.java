@@ -23,7 +23,7 @@ public class Game extends Canvas {
     public static final short SPEED_MIN = 60;
     public static final short SPEED_DEFAULT = 128;
     public static final short SPEED_MAX = 240;
-    public static final Square.LabelType LABEL_DEFAULT = Square.LabelType.COORDINATES;
+    public static final Square.LabelType LABEL_DEFAULT = Square.LabelType.NONE;
     
     public static byte width = Game.WIDTH_DEFAULT;
     public static byte height = Game.HEIGHT_DEFAULT;
